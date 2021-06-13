@@ -105,6 +105,7 @@ export const getStaticProps = async () => {
       movies,
       categories,
     },
+    revalidate: 60,
   }
 }
 
