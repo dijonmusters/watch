@@ -18,7 +18,7 @@
 .categories {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: center;
   padding-left: 2rem;
   padding-right: 2rem;
 }
