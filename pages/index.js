@@ -2,10 +2,15 @@ import { Fragment, useState } from 'react'
 import styles from 'styles/index.module.css'
 import { Client } from '@notionhq/client'
 import { useForm } from 'react-hook-form'
+import { FiCheckSquare, FiSquare, FiX } from 'react-icons/fi'
+import useHover from 'hooks/useHover'
+import axios from 'axios'
 
-const IndexPage = ({ movies, categories }) => {
-  const { handleSubmit, register, errors, control } = useForm()
-  const [selectedMovie, setSelectedMovie] = useState(null)
+const IndexPage = ({ allMovies, categories }) => {
+  const [movies, setMovies] = useState(allMovies)
+  const { handleSubmit, register } = useForm()
+  const [selectedMovie, setSelectedMovie] = useState()
+  const [hoverRef, isHovered] = useHover()
 
   const pickMovie = (data) => {
     const selectedCategories = Object.keys(data).filter((key) => data[key])
@@ -16,11 +21,24 @@ const IndexPage = ({ movies, categories }) => {
         )
       )
       const randomNumber = Math.floor(Math.random() * options.length)
-      setSelectedMovie(options[randomNumber].title)
+      setSelectedMovie(options[randomNumber])
     } else {
       const randomNumber = Math.floor(Math.random() * movies.length)
-      setSelectedMovie(movies[randomNumber].title)
+      setSelectedMovie(movies[randomNumber])
     }
+  }
+
+  const handleWatchToggle = async () => {
+    const isWatched = !selectedMovie.isWatched
+    const movie = movies.find((m) => m.id === selectedMovie.id)
+    movie.isWatched = isWatched
+    setMovies(movies)
+    setSelectedMovie((current) => ({ ...current, isWatched }))
+
+    await axios.post('/api/mark-as-watched', {
+      id: selectedMovie.id,
+      isWatched,
+    })
   }
 
   return (
@@ -45,7 +63,28 @@ const IndexPage = ({ movies, categories }) => {
         <button className={styles.button}>Choose!</button>
       </form>
       {!!selectedMovie ? (
-        <div className={styles.movie}>{selectedMovie}</div>
+        <div className={styles.moviePanel}>
+          <div className={styles.heading}>
+            <button
+              className={styles.icon}
+              ref={hoverRef}
+              onClick={handleWatchToggle}
+            >
+              {selectedMovie.isWatched || isHovered ? (
+                <FiCheckSquare />
+              ) : (
+                <FiSquare />
+              )}
+            </button>
+            <div className={styles.movieTitle}>{selectedMovie.title}</div>
+          </div>
+          <button
+            className={styles.chooseAgain}
+            onClick={handleSubmit(pickMovie)}
+          >
+            Choose again
+          </button>
+        </div>
       ) : null}
     </div>
   )
@@ -53,13 +92,13 @@ const IndexPage = ({ movies, categories }) => {
 
 export const getStaticProps = async () => {
   const notion = new Client({
-    auth: process.env.NOTION_TOKEN,
+    auth: process.env.NOTION_SECRET,
   })
 
   let results = []
 
   let data = await notion.databases.query({
-    database_id: 'f86780796128445aa1c89401244c3f8f',
+    database_id: process.env.DATABASE_ID,
     filter: {
       property: 'Watched',
       checkbox: {
@@ -72,7 +111,7 @@ export const getStaticProps = async () => {
 
   while (data.has_more) {
     data = await notion.databases.query({
-      database_id: 'f86780796128445aa1c89401244c3f8f',
+      database_id: process.env.DATABASE_ID,
       filter: {
         property: 'Watched',
         checkbox: {
@@ -84,14 +123,15 @@ export const getStaticProps = async () => {
     results = [...results, ...data.results]
   }
 
-  const movies = results.map((result) => ({
+  const allMovies = results.map((result) => ({
+    id: result.id,
     title: result.properties.Title.title[0].plain_text,
     categories: result.properties.Categories.multi_select.map(
       (category) => category.name
     ),
   }))
 
-  const categories = movies.reduce((acc, curr) => {
+  const categories = allMovies.reduce((acc, curr) => {
     curr.categories.forEach((c) => {
       if (!acc.includes(c)) {
         acc.push(c)
@@ -102,7 +142,7 @@ export const getStaticProps = async () => {
 
   return {
     props: {
-      movies,
+      allMovies,
       categories,
     },
     revalidate: 60,

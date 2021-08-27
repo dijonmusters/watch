@@ -6,6 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem 0;
 }
 
 .form {
@@ -55,6 +56,8 @@
 
 .label:hover {
   cursor: pointer;
+  background: #ffdf6c;
+  color: #3f3f3f;
 }
 
 .input:checked + label {
@@ -66,14 +69,58 @@
   display: none;
 }
 
-.movie {
+.moviePanel {
   position: absolute;
   left: 0;
   bottom: 0;
   width: 100%;
   background: #ffdf6c;
   color: #3f3f3f;
-  padding: 1rem 0;
-  font-size: 4rem;
+  padding: 1rem;
   text-align: center;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.movieTitle {
+  font-size: 2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
+
+.icon:hover {
+  cursor: pointer;
+}
+
+.chooseAgain {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+@media (min-width: 900px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .moviePanel {
+    padding: 1rem 2rem;
+  }
+
+  .movieTitle {
+    font-size: 4rem;
+  }
+
+  .icon {
+    font-size: 4rem;
+  }
 }
