@@ -2,15 +2,13 @@ import { Fragment, useState } from 'react'
 import styles from 'styles/index.module.css'
 import { Client } from '@notionhq/client'
 import { useForm } from 'react-hook-form'
-import { FiCheckSquare, FiSquare, FiX } from 'react-icons/fi'
-import useHover from 'hooks/useHover'
+import { FiCheckSquare, FiSquare } from 'react-icons/fi'
 import axios from 'axios'
 
 const IndexPage = ({ allMovies, categories }) => {
   const [movies, setMovies] = useState(allMovies)
   const { handleSubmit, register } = useForm()
   const [selectedMovie, setSelectedMovie] = useState()
-  const [hoverRef, isHovered] = useHover()
 
   const pickMovie = (data) => {
     const selectedCategories = Object.keys(data).filter((key) => data[key])
@@ -65,18 +63,12 @@ const IndexPage = ({ allMovies, categories }) => {
       {!!selectedMovie ? (
         <div className={styles.moviePanel}>
           <div className={styles.heading}>
-            <button
-              className={styles.icon}
-              ref={hoverRef}
-              onClick={handleWatchToggle}
-            >
-              {selectedMovie.isWatched || isHovered ? (
-                <FiCheckSquare />
-              ) : (
-                <FiSquare />
-              )}
+            <button className={styles.icon} onClick={handleWatchToggle}>
+              {selectedMovie.isWatched ? <FiCheckSquare /> : <FiSquare />}
             </button>
-            <div className={styles.movieTitle}>{selectedMovie.title}</div>
+            <div className={styles.movieTitle} onClick={handleWatchToggle}>
+              {selectedMovie.title}
+            </div>
           </div>
           <button
             className={styles.chooseAgain}

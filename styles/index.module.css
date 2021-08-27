@@ -91,14 +91,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .icon {
   font-size: 2rem;
   margin-right: 1rem;
-}
-
-.icon:hover {
   cursor: pointer;
 }
 
